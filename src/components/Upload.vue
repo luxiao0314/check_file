@@ -79,7 +79,9 @@ export default {
     check() {
       this.checkList = [];
 
-      let minus = this.standardList.filter((x) => !this.list.includes(x));
+      let minus = this.list.filter((x) => !this.standardList.includes(x));
+
+      minus.sort();
 
       this.checkList = new Set(minus);
 
@@ -104,6 +106,7 @@ export default {
           it != "" &&
           it.includes("=") &&
           !it.includes("Activity") &&
+          !it.includes("Time") &&
           !it.includes(">") &&
           !it.includes("<");
 
@@ -116,6 +119,7 @@ export default {
             it != "" &&
             it.includes("=") &&
             !it.includes("taskId") &&
+            !it.includes("Task") &&
             !it.includes(":") &&
             !it.includes("mStackId") &&
             !it.includes("pid") &&
@@ -137,7 +141,7 @@ export default {
           }
         });
 
-        callback(resultList);
+        callback(new Set(resultList));
       };
     },
   },
