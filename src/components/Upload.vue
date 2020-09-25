@@ -47,12 +47,12 @@ export default {
   methods: {
     //维修文件上传
     mutileUpload() {
-      this.list = []
+      this.list = [];
       let files = this.$refs.refFile2.files;
 
       for (var i = 0; i < files.length; i++) {
         let file = files.item(i);
-        this.upload(file, (items) => {
+        this.filter(file, (items) => {
           this.list.splice(this.list.length, 0, ...items);
         });
       }
@@ -62,12 +62,12 @@ export default {
     },
     //标准文件上传
     fileUpload() {
-      this.standardList = []
+      this.standardList = [];
       let files = this.$refs.refFile1.files;
 
       for (var i = 0; i < files.length; i++) {
         let file = files.item(i);
-        this.upload(file, (items) => {
+        this.filter(file, (items) => {
           this.standardList.splice(this.standardList.length, 0, ...items);
         });
       }
@@ -77,23 +77,17 @@ export default {
     },
     //检测
     check() {
-      this.checkList = []
-      this.list.forEach((it) => {
-        if (!this.standardList.includes(it)) {
-          this.checkList.push(it);
-        }
-      });
+      this.checkList = [];
 
-      //去重
-      this.checkList = [...new Set(this.checkList)];
+      let minus = this.standardList.filter((x) => !this.list.includes(x));
 
-      //排序
-      // this.checkList.sort();
+      this.checkList = new Set(minus);
 
       console.log("检测结果:");
       console.log(this.checkList);
     },
-    upload(selectedFile, callback) {
+    //过滤文件内容
+    filter(selectedFile, callback) {
       let list = [];
 
       if (!selectedFile) return;
@@ -103,26 +97,47 @@ export default {
       reader.readAsText(selectedFile);
 
       reader.onloadend = (e) => {
-        let lineFilter = (it) =>
-          it != "" && it.includes("=") && !it.includes(":");
+        let resultList = [];
 
+        //每行过滤
+        let lineFilter = (it) =>
+          it != "" &&
+          it.includes("=") &&
+          !it.includes("Activity") &&
+          !it.includes(">") &&
+          !it.includes("<");
+
+        //获取每行数据并过滤
         let line = e.target.result.split("\r\n").filter((it) => lineFilter(it));
 
         line.forEach((element) => {
+          //字段过滤
           let filter = (it) =>
             it != "" &&
             it.includes("=") &&
-            !it.includes("{") &&
-            !it.includes("}") &&
             !it.includes("taskId") &&
+            !it.includes(":") &&
             !it.includes("mStackId") &&
             !it.includes("pid") &&
+            !it.includes("mLayoutSeq") &&
+            !it.includes("Window") &&
             !it.includes("/");
 
-          let elementlist = element.split(" ").filter((it) => filter(it));
-
-          callback(elementlist);
+          if (element.includes("Rect") || element.includes("DisplayInfo")) {
+            resultList.push(
+              element
+                .replace("    ", "")
+                .replace("      ", "")
+                .replace("    ", "")
+                .replace("  ", "")
+            );
+          } else {
+            let elementlist = element.split(" ").filter((it) => filter(it));
+            resultList.splice(resultList.length, 0, ...elementlist);
+          }
         });
+
+        callback(resultList);
       };
     },
   },
