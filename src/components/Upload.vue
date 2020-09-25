@@ -41,24 +41,29 @@ export default {
     return {
       standardList: [],
       checkList: [],
-      list: [],
+      errlist: [],
     };
   },
   methods: {
     //维修文件上传
     mutileUpload() {
-      this.list = [];
+      this.errlist = [];
       let files = this.$refs.refFile2.files;
 
       for (var i = 0; i < files.length; i++) {
         let file = files.item(i);
         this.filter(file, (items) => {
-          this.list.splice(this.list.length, 0, ...items);
+          //维修数据不包含就添加
+          items.forEach((it) => {
+            if (!this.errlist.includes(it)) {
+              this.errlist.push(it);
+            }
+          });
         });
       }
 
       console.log("维修数据:");
-      console.log(this.list);
+      console.log(this.errlist);
     },
     //标准文件上传
     fileUpload() {
@@ -68,7 +73,12 @@ export default {
       for (var i = 0; i < files.length; i++) {
         let file = files.item(i);
         this.filter(file, (items) => {
-          this.standardList.splice(this.standardList.length, 0, ...items);
+          //标准数据不包含就添加
+          items.forEach((it) => {
+            if (!this.standardList.includes(it)) {
+              this.standardList.push(it);
+            }
+          });
         });
       }
 
@@ -79,11 +89,22 @@ export default {
     check() {
       this.checkList = [];
 
-      let minus = this.list.filter((x) => !this.standardList.includes(x));
+      let minus = this.errlist.filter((x) => !this.standardList.includes(x));
 
-      minus.sort();
+      let results = new Map();
 
-      this.checkList = new Set(minus);
+      //获取第一个=号,转map去重
+      minus.forEach((it) => {
+        let index = it.indexOf("=");
+        let key = it.substring(0, index);
+        let value = it.substring(index + 1, it.length);
+        results.set(key, value);
+      });
+
+      //采用map对key去重
+      for(let item of results) {
+        this.checkList.push(item);
+      }
 
       console.log("检测结果:");
       console.log(this.checkList);
