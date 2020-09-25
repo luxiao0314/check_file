@@ -65,6 +65,7 @@ export default {
       console.log("维修数据:");
       console.log(this.errlist);
     },
+
     //标准文件上传
     fileUpload() {
       this.standardList = [];
@@ -85,10 +86,9 @@ export default {
       console.log("标准数据:");
       console.log(this.standardList);
     },
+
     //检测
     check() {
-      this.checkList = [];
-
       let minus = this.errlist.filter((x) => !this.standardList.includes(x));
 
       let results = new Map();
@@ -101,14 +101,21 @@ export default {
         results.set(key, value);
       });
 
+      this.checkList = [];
+
       //采用map对key去重
-      for(let item of results) {
-        this.checkList.push(item);
+      // for (let item of results) {
+      //   this.checkList.push(item);
+      // }
+
+      for (let [key, value] of results) {
+        this.checkList.push(key + " : " + value);
       }
 
       console.log("检测结果:");
-      console.log(this.checkList);
+      console.log(this.checkList.sort());
     },
+
     //过滤文件内容
     filter(selectedFile, callback) {
       let list = [];
