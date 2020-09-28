@@ -1,16 +1,22 @@
 <template>
   <div id="app">
     <br />
+    <el-input
+      v-model="input"
+      placeholder="请输入机型"
+      style="width: 150px; margin-right: 20px"
+    />
+    <el-radio v-model="radio" label="正常">正常</el-radio>
+    <el-radio v-model="radio" label="维修">维修</el-radio>
+    <br /><br />
 
     <div>
       <span>上传文件: </span>
       <input type="file" ref="refFile1" @change="fileUpload" />
-
       <button @click="exportData">导出</button>
     </div>
 
     <br /><br />
-
     <div v-for="(line, index) in checkResultList" :key="index">{{ line }}</div>
   </div>
 </template>
@@ -23,6 +29,8 @@ export default {
       standardList: [],
       checkResultList: [],
       filename: "",
+      radio: "正常",
+      input: "",
     };
   },
   methods: {
@@ -64,15 +72,20 @@ export default {
       console.log(results);
 
       this.checkResultList = [];
+      this.checkResultList.push("IMEI,");
+      this.checkResultList.push("机型,");
+      this.checkResultList.push("正常与否,");
       for (let [key, value] of results) {
-        // this.checkResultList.push(key + "=" + value);
         this.checkResultList.push(key + ",");
       }
 
       this.checkResultList.push("\r\n");
 
+      this.checkResultList.push(this.filename.replace(".txt", "") + ",");
+      this.checkResultList.push(this.input + ",");
+      this.checkResultList.push(this.radio + ",");
       for (let [key, value] of results) {
-        this.checkResultList.push(value.replace(/,/g, '","') + ",");  //  /,/g:全局替换逗号
+        this.checkResultList.push(value.replace(/,/g, '","') + ","); //  /,/g:全局替换逗号
       }
 
       //定义文件内容，类型必须为Blob 否则createObjectURL会报错
@@ -87,7 +100,7 @@ export default {
       let el = document.createElement("a");
       //链接赋值
       el.href = url;
-      el.download = this.filename;
+      el.download = this.filename.replace(".txt", ".csv");
       //必须点击否则不会下载
       el.click();
       //移除链接释放资源

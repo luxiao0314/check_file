@@ -5,6 +5,10 @@ import App from './App'
 
 Vue.config.productionTip = false
 
+import ElementUI from "element-ui"
+Vue.use(ElementUI)//全局使用ElementUI
+import 'element-ui/lib/theme-chalk/index.css'
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
