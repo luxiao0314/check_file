@@ -34,7 +34,7 @@ export default {
       for (var i = 0; i < files.length; i++) {
         let file = files.item(i);
 
-        this.filename = file.name
+        this.filename = file.name;
         this.filter(file, (items) => {
           //标准数据不包含就添加
           items.forEach((it) => {
@@ -49,6 +49,7 @@ export default {
       console.log(this.standardList);
     },
 
+    //导出数据
     exportData() {
       let results = new Map();
 
@@ -64,11 +65,20 @@ export default {
 
       this.checkResultList = [];
       for (let [key, value] of results) {
-        this.checkResultList.push(key + "=" + value);
+        // this.checkResultList.push(key + "=" + value);
+        this.checkResultList.push(key + ",");
+      }
+
+      this.checkResultList.push("\r\n");
+
+      for (let [key, value] of results) {
+        this.checkResultList.push(value.replace(/,/g, '","') + ",");  //  /,/g:全局替换逗号
       }
 
       //定义文件内容，类型必须为Blob 否则createObjectURL会报错
-      let content = new Blob([JSON.stringify(this.checkResultList)]);
+      let content = new Blob(this.checkResultList, {
+        endings: "transparent",
+      });
 
       //生成url对象
       let urlObject = window.URL || window.webkitURL || window;
