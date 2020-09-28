@@ -6,23 +6,32 @@
       placeholder="请输入机型"
       style="width: 150px; margin-right: 20px"
     />
-    <el-radio v-model="radio" label="正常">正常</el-radio>
-    <el-radio v-model="radio" label="维修">维修</el-radio>
+
+    <button @click="exportAllData">导出</button>
     <br /><br />
 
     <div>
-      <span>上传文件: </span>
+      <span>上传正常文件: </span>
       <input
         type="file"
         ref="refFile1"
-        @change="fileUpload"
+        @change="normalFileUpload"
         multiple="multiple"
       />
-      <button @click="exportAllData">导出</button>
     </div>
     <br />
 
-    <div v-for="(line, index) in content" :key="index">{{ line }}</div>
+    <div>
+      <span>上传维修文件: </span>
+      <input
+        type="file"
+        ref="refFile2"
+        @change="erroFileUpload"
+        multiple="multiple"
+      />
+    </div>
+
+    <br />
   </div>
 </template>
 
@@ -31,16 +40,16 @@ export default {
   data() {
     return {
       checkResultList: [],
-      radio: "正常",
       input: "",
-      content: new Map(),
-      maxTitle: [],
+      normalData: new Map(),
+      errorData: new Map(),
+      maxData: [],
     };
   },
   methods: {
     //标准文件上传
-    fileUpload() {
-      this.content = new Map();
+    normalFileUpload() {
+      this.normalData = new Map();
       let files = this.$refs.refFile1.files;
 
       for (var i = 0; i < files.length; i++) {
@@ -58,42 +67,102 @@ export default {
             results.set(key, value);
           });
 
-          // console.log(results);
-
-          this.content.set(filename, results);
-
-          //获取最长的数据
-          let size = 0;
-          for (let [key, value] of this.content) {
-            if (size <= value.size) {
-              size = value.size;
-              this.maxTitle = value;
-            }
-          }
+          this.normalData.set(filename, results);
         });
       }
 
-      console.log("map数据:");
-      console.log(this.content);
+      console.log("标准数据:");
+      console.log(this.normalData);
+    },
+
+    //异常文件上传
+    erroFileUpload() {
+      this.errorData = new Map();
+      let files = this.$refs.refFile2.files;
+
+      for (var i = 0; i < files.length; i++) {
+        let file = files.item(i);
+        let filename = file.name.replace(".txt", "");
+
+        this.filter(file, (items) => {
+          let results = new Map();
+
+          //获取第一个=号,转map去重
+          items.forEach((it) => {
+            let index = it.indexOf("=");
+            let key = it.substring(0, index);
+            let value = it.substring(index + 1, it.length);
+            results.set(key, value);
+          });
+
+          this.errorData.set(filename, results);
+        });
+      }
+
+      console.log("异常数据:");
+      console.log(this.errorData);
     },
 
     //导出所有
     exportAllData() {
+      //获取最长的数据
+      let size = 0;
+      for (let [key, value] of this.normalData) {
+        if (size <= value.size) {
+          size = value.size;
+          this.maxData = value;
+        }
+      }
+
+      console.log("maxdata " + this.maxData.size);
+
+      let errorMaxdata = [];
+      for (let [key, value] of this.errorData) {
+        if (size <= value.size) {
+          size = value.size;
+          this.errorMaxdata = value;
+        }
+      }
+
+      console.log("errorMaxdata " + this.maxData.size);
+
+      if (errorMaxdata.size > this.maxData) {
+        this.maxData = errorMaxdata;
+      }
+
       this.checkResultList = [];
       this.checkResultList.push("IMEI,");
       this.checkResultList.push("机型,");
       this.checkResultList.push("正常与否,");
-      for (let [key, value] of this.maxTitle) {
+      for (let [key, value] of this.maxData) {
         this.checkResultList.push(key + ",");
       }
 
-      for (let [key, value] of this.content) {
+      for (let [key, value] of this.normalData) {
         this.checkResultList.push("\r\n");
         this.checkResultList.push(key + ",");
         this.checkResultList.push(this.input + ",");
-        this.checkResultList.push(this.radio + ",");
+        this.checkResultList.push("正常,");
 
-        for (let [key1, value2] of this.maxTitle) {
+        for (let [key1, value2] of this.maxData) {
+          let content = value.get(key1);
+          if (content == undefined) {
+            this.checkResultList.push(" ,");
+          } else {
+            //替换引号和逗号
+            content = content.replace(/\"/g, "").replace(/,/g, '","') + ","; //  /,/g:全局替换逗号
+            this.checkResultList.push(content);
+          }
+        }
+      }
+
+      for (let [key, value] of this.errorData) {
+        this.checkResultList.push("\r\n");
+        this.checkResultList.push(key + ",");
+        this.checkResultList.push(this.input + ",");
+        this.checkResultList.push("维修,");
+
+        for (let [key1, value2] of this.maxData) {
           let content = value.get(key1);
           if (content == undefined) {
             this.checkResultList.push(" ,");
@@ -108,16 +177,16 @@ export default {
       console.log(this.checkResultList);
 
       //定义文件内容，类型必须为Blob 否则createObjectURL会报错
-      let content = new Blob(this.checkResultList);
+      let blob = new Blob(this.checkResultList);
 
       //生成url对象
       let urlObject = window.URL || window.webkitURL || window;
-      let url = urlObject.createObjectURL(content);
+      let url = urlObject.createObjectURL(blob);
       //生成<a></a>DOM元素
       let el = document.createElement("a");
       //链接赋值
       el.href = url;
-      el.download = this.input + "-" + this.radio + ".csv";
+      el.download = this.input + ".csv";
       //必须点击否则不会下载
       el.click();
       //移除链接释放资源
