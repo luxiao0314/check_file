@@ -15,15 +15,14 @@
       <input type="file" ref="refFile1" @change="fileUpload" />
       <button @click="exportData">导出</button>
     </div>
+    <br />
 
-    <br /><br />
-    <div v-for="(line, index) in checkResultList" :key="index">{{ line }}</div>
+    <div v-for="(line, index) in standardList" :key="index">{{ line }}</div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "HelloWorld",
   data() {
     return {
       standardList: [],
@@ -85,7 +84,9 @@ export default {
       this.checkResultList.push(this.input + ",");
       this.checkResultList.push(this.radio + ",");
       for (let [key, value] of results) {
-        this.checkResultList.push(value.replace(/,/g, '","') + ","); //  /,/g:全局替换逗号
+        //替换引号和逗号
+        let content = value.replace(/\"/g, "").replace(/,/g, '","') + ",";
+        this.checkResultList.push(content); //  /,/g:全局替换逗号
       }
 
       //定义文件内容，类型必须为Blob 否则createObjectURL会报错
