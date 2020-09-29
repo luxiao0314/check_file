@@ -140,7 +140,7 @@ export default {
 
       for (let [key, value] of this.normalData) {
         this.checkResultList.push("\r\n");
-        this.checkResultList.push(key + ",");
+        this.checkResultList.push("'" + key + ",");
         this.checkResultList.push(this.input + ",");
         this.checkResultList.push("正常,");
 
@@ -150,7 +150,7 @@ export default {
             this.checkResultList.push(" ,");
           } else {
             //替换引号和逗号
-            content = content.replace(/\"/g, "").replace(/,/g, '","') + ","; //  /,/g:全局替换逗号
+            content = content.replace(/\"/g, "").replace(/,/g, "，") + ",";
             this.checkResultList.push(content);
           }
         }
@@ -158,7 +158,7 @@ export default {
 
       for (let [key, value] of this.errorData) {
         this.checkResultList.push("\r\n");
-        this.checkResultList.push(key + ",");
+        this.checkResultList.push("'" + key + ",");
         this.checkResultList.push(this.input + ",");
         this.checkResultList.push("维修,");
 
@@ -168,7 +168,8 @@ export default {
             this.checkResultList.push(" ,");
           } else {
             //替换引号和逗号
-            content = content.replace(/\"/g, "").replace(/,/g, '","') + ","; //  /,/g:全局替换逗号
+            // content = content.replace(/\"/g, "").replace(/,/g, '","') + ","; //  /,/g:全局替换逗号
+            content = content.replace(/\"/g, "").replace(/,/g, "，") + ",";
             this.checkResultList.push(content);
           }
         }
