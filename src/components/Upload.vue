@@ -57,17 +57,7 @@ export default {
         let filename = file.name.replace(".txt", "");
 
         this.filter(file, (items) => {
-          let results = new Map();
-
-          //获取第一个=号,转map去重
-          items.forEach((it) => {
-            let index = it.indexOf("=");
-            let key = it.substring(0, index);
-            let value = it.substring(index + 1, it.length);
-            results.set(key, value);
-          });
-
-          this.normalData.set(filename, results);
+          this.normalData.set(filename, items);
         });
       }
 
@@ -85,17 +75,8 @@ export default {
         let filename = file.name.replace(".txt", "");
 
         this.filter(file, (items) => {
-          let results = new Map();
-
-          //获取第一个=号,转map去重
-          items.forEach((it) => {
-            let index = it.indexOf("=");
-            let key = it.substring(0, index);
-            let value = it.substring(index + 1, it.length);
-            results.set(key, value);
-          });
-
-          this.errorData.set(filename, results);
+          //items需要为map结构
+          this.errorData.set(filename, items);
         });
       }
 
@@ -205,49 +186,22 @@ export default {
       reader.readAsText(selectedFile);
 
       reader.onloadend = (e) => {
-        let resultList = [];
+        let resultList = new Map()
 
         //每行过滤
-        let lineFilter = (it) =>
-          it != "" &&
-          it.includes("=") &&
-          !it.includes("Activity") &&
-          !it.includes("Time") &&
-          !it.includes(">") &&
-          !it.includes("<");
+        let lineFilter = (it) =>it != "" && it.includes(":") &&!it.includes("running") &&!it.includes("stopped")
 
         //获取每行数据并过滤
-        let line = e.target.result.split("\r\n").filter((it) => lineFilter(it));
+        let line = e.target.result.split("\n").filter((it) => lineFilter(it));
 
         line.forEach((element) => {
-          //字段过滤
-          let filter = (it) =>
-            it != "" &&
-            it.includes("=") &&
-            !it.includes("taskId") &&
-            !it.includes("Task") &&
-            !it.includes(":") &&
-            !it.includes("mStackId") &&
-            !it.includes("pid") &&
-            !it.includes("mLayoutSeq") &&
-            !it.includes("Window") &&
-            !it.includes("/");
 
-          if (element.includes("Rect") || element.includes("DisplayInfo")) {
-            resultList.push(
-              element
-                .replace("    ", "")
-                .replace("      ", "")
-                .replace("    ", "")
-                .replace("  ", "")
-            );
-          } else {
-            let elementlist = element.split(" ").filter((it) => filter(it));
-            resultList.splice(resultList.length, 0, ...elementlist);
-          }
+          let elementlist = element.split(": ")
+
+          resultList.set(elementlist[0],elementlist[1])
         });
 
-        callback(new Set(resultList));
+        callback(resultList);
       };
     },
   },
