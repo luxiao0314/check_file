@@ -1,12 +1,7 @@
 <template>
   <div id="app">
     <br />
-    <el-input
-      v-model="input"
-      placeholder="请输入机型"
-      style="width: 150px; margin-right: 20px"
-    />
-
+  
     <button @click="exportAllData">导出</button>
     <br /><br />
 
@@ -40,10 +35,9 @@ export default {
   data() {
     return {
       checkResultList: [],
-      input: "",
       normalData: new Map(),
       errorData: new Map(),
-      maxData: [],
+      maxData: []
     };
   },
   methods: {
@@ -119,10 +113,14 @@ export default {
         this.checkResultList.push(key + ",");
       }
 
+
+      let filename = ""
       for (let [key, value] of this.normalData) {
+        let name = key.split("_")
+        filename = name[1]
         this.checkResultList.push("\r\n");
-        this.checkResultList.push("'" + key + ",");
-        this.checkResultList.push(this.input + ",");
+        this.checkResultList.push("'" + name[2] + ",");
+        this.checkResultList.push(name[1] + ",");
         this.checkResultList.push("正常,");
 
         for (let [key1, value2] of this.maxData) {
@@ -138,9 +136,10 @@ export default {
       }
 
       for (let [key, value] of this.errorData) {
+        let name = key.split("_")
         this.checkResultList.push("\r\n");
-        this.checkResultList.push("'" + key + ",");
-        this.checkResultList.push(this.input + ",");
+        this.checkResultList.push("'" + name[2] + ",");
+        this.checkResultList.push(name[1] + ",");
         this.checkResultList.push("维修,");
 
         for (let [key1, value2] of this.maxData) {
@@ -168,7 +167,7 @@ export default {
       let el = document.createElement("a");
       //链接赋值
       el.href = url;
-      el.download = this.input + ".csv";
+      el.download = filename + ".csv";
       //必须点击否则不会下载
       el.click();
       //移除链接释放资源
