@@ -188,7 +188,11 @@ export default {
         let resultList = new Map()
 
         //每行过滤
-        let lineFilter = (it) =>it != "" && it.includes(":") &&!it.includes("running") &&!it.includes("stopped")
+        let lineFilter = (it) =>it != "" && it.includes(":") 
+        &&!it.includes("running") &&!it.includes("stopped")
+        &&!it.includes("dev.ssrm.pst_set") &&!it.includes("dev.sdhms.pst")
+        &&!it.includes("iwc.arg") &&!it.includes("net.iptype")
+        &&!it.includes("sys.settings") &&!it.includes("dev.sdhms.pst")
 
         //获取每行数据并过滤
         let line = e.target.result.split("\n").filter((it) => lineFilter(it));
