@@ -192,7 +192,8 @@ export default {
         &&!it.includes("running") &&!it.includes("stopped")
         &&!it.includes("dev.ssrm.pst_set") &&!it.includes("dev.sdhms.pst")
         &&!it.includes("iwc.arg") &&!it.includes("net.iptype")
-        &&!it.includes("sys.settings") &&!it.includes("dev.sdhms.pst")
+        &&!it.includes("sys.settings") &&!it.includes("sys.usb")
+        &&!it.includes("dns_fail_count") &&!it.includes("sys.usb")
 
         //获取每行数据并过滤
         let line = e.target.result.split("\n").filter((it) => lineFilter(it));
