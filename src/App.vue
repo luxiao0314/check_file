@@ -1,28 +1,25 @@
 <template>
   <div id="app">
-    <Upload/>
+    <upload/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
-import Upload from './components/Upload'
+import upload from './components/upload.vue'
 
 export default {
   name: 'App',
   components: {
-    Upload
+    upload
   }
 }
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* text-align: center; */
   color: #2c3e50;
-  margin-top: 10px;
 }
 </style>
